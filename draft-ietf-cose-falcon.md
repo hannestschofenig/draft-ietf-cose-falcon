@@ -1,7 +1,7 @@
 ---
-title: "TODO - Your title"
-abbrev: "TODO - Abbreviation"
-category: info
+title: "JOSE and COSE Encoding for Falcon"
+abbrev: "JOSE and COSE Encoding for Falcon"
+category: std
 
 docname: draft-ietf-cose-falcon-latest
 submissiontype: IETF  # also: "independent", "editorial", "IAB", or "IRTF"
@@ -12,9 +12,10 @@ v: 3
 area: "Security"
 workgroup: "CBOR Object Signing and Encryption"
 keyword:
- - next generation
- - unicorn
- - sparkling distributed ledger
+  - JOSE
+  - COSE
+  - PQC
+  - FALCON
 venue:
   group: "CBOR Object Signing and Encryption"
   type: "Working Group"
@@ -25,46 +26,380 @@ venue:
 
 author:
  -
+    fullname: "Michael Prorock"
+    organization: mesur.io
+    email: "mprorock@mesur.io"
+ -
+    fullname: "Orie Steele"
+    organization: Tradeverifyd
+    email: "orie@or13.io"
+ -
+    fullname: "Rafael Misoczki"
+    organization: Google
+    email: "rafaelmisoczki@google.com"
+ -
+    fullname: "Michael Osborne"
+    organization: IBM
+    email: "osb@zurich.ibm.com"
+ -
+    fullname: "Christine Cloostermans"
+    organization: NXP
+    email: "christine.cloostermans@nxp.com"
+ -
     fullname: "Hannes Tschofenig"
-    organization: Your Organization Here
+    organization: University of Applied Sciences Bonn-Rhein-Sieg
+    abbrev: "H-BRS"
+    country: Germany
     email: "hannes.tschofenig@gmx.net"
 
 normative:
+  RFC4648: Base64
+  RFC6234: SHA
+  RFC7515: JWS
+  RFC7516: JWE
+  RFC7517: JWK
+  RFC7518: JWA
+  RFC7519: JWT
+  RFC7638: JWK-Thumbprint
+  RFC7797: JWS-b64
+  RFC8037: OKP
+  RFC8812: JOSE-COSE-Registrations
 
 informative:
-
-...
+  Falcon:
+    title: "Fast-Fourier Lattice-based Compact Signatures over NTRU"
+    target: https://falcon-sign.info/
+  GPV08:
+    title: "Trapdoors for Hard Lattices and New Cryptographic Constructions"
+  DP16:
+    title: "Fast Fourier Orthogonalization"
 
 --- abstract
 
-TODO Abstract
+This document describes JSON and CBOR serializations for Falcon, a Post-Quantum Cryptography (PQC) signature suite.
+
+It does not define new cryptographic primitives; rather, it specifies how existing Falcon mechanisms are serialized for use in JOSE and COSE.
+
+This document registers key types and signature algorithms for JOSE and COSE, specifically 'NTRU', 'FALCON512', and 'FALCON1024'.
 
 
 --- middle
 
 # Introduction
 
-TODO Introduction
+Falcon (Fast Fourier Lattice-based Compact Signatures over NTRU) is a lattice-based signature scheme {{Falcon}}. It is based on the GPV hash-and-sign lattice framework introduced by Gentry, Peikert, and Vaikuntanathan {{GPV08}}, which requires both a class of lattices and a trapdoor sampling technique. Falcon uses NTRU lattices for the former and a fast Fourier sampling technique {{DP16}} for the latter.
 
+The core hard problem underlying Falcon is the Short Integer Solution (SIS) problem over NTRU lattices, for which no efficient solving algorithms are currently known in either classical or quantum settings.
+
+Falcon's design emphasizes compactness, which minimizes the combined size of the public key and signature. It offers efficient signing and verification, with operations of complexity O(n log n). However, Falcon's algorithms are non-trivial to implement and require floating-point arithmetic support.
+
+This document specifies the use of Falcon with JSON Object Signing and Encryption (JOSE) {{RFC7515}} and CBOR Object Signing and Encryption (COSE) {{RFC8812}}. It registers the 'NTRU' key type and the 'FALCON512' and 'FALCON1024' signature algorithms.
 
 # Conventions and Definitions
 
 {::boilerplate bcp14-tagged}
 
+The following terminology is used throughout this document:
+
+- PK: The public key for the signature scheme.
+- SK: The secret key for the signature scheme.
+- signature: The digital signature output.
+- message: The input to be signed by the signature scheme.
+- sha256: The SHA-256 hash function defined in {{RFC6234}}.
+
+# The Falcon Algorithm Overview
+
+Implementations of this specification MUST follow the key generation, signing, and verification procedures descirbed in {{Falcon}}.
+
+Falcon brings several advantages over other signature algorithms:
+
+- Post-quantum security: Secure under the assumption that the NTRU-SIS problem remains hard.
+- Compactness: Minimizes the combined signature and public key sizes.
+- Efficiency: Enables high signing and verification throughput on common hardware.
+- Side-channel resistance: Requires careful constant-time implementation, particularly for Gaussian sampling.
+
+The sizes of the public key, private key, and signature are as follows:
+
+| Variable   | Parameter Set | Size (bytes) |
+|-----------:|:--------------|:-------------|
+| Signature  | 512           | 666          |
+| Public Key | 512           | 897          |
+| Private Key| 512           | 1281         |
+| Signature  | 1024          | 1280         |
+| Public Key | 1024          | 1793         |
+| Private Key| 1024          | 2305         |
+
+# Using Falcon with JOSE {#Falcon-JOSE}
+
+This section follows {{RFC8812}} regarding JOSE/COSE registration and mapping.
+
+## Falcon Key Representations
+
+A new key type (`kty`) value `NTRU` is defined for keys related to NTRU-based post-quantum algorithms. It supports base64url-encoded public and private keys. The following parameters apply:
+
+| Parameter | Requirement | Description |
+|----------:|:------------|:------------|
+| `kty` | REQUIRED | MUST be `NTRU`. |
+| `alg` | REQUIRED | MUST be one of `FALCON512` or `FALCON1024`. |
+| `pset` | OPTIONAL | Indicates the parameter set used. |
+| `x` | REQUIRED | Base64url-encoded public key ({{RFC4648}}). |
+| `d` | REQUIRED (private keys) | Base64url-encoded private key; MUST NOT appear in public keys. |
+
+## JWK Thumbprints
+
+When computing JWK Thumbprints {{RFC7638}}, include the fields `kty`, `alg`, and `x` in lexicographic order.
+
+## JWK Validation Rules
+
+- `kty` MUST be `NTRU`.
+- `alg` MUST indicate a valid Falcon parameterization.
+- If `key_ops` is present, it MUST include `sign` for signing keys and `verify` for verification keys.
+- If `use` is present, it MUST be `sig`.
+
+## Falcon Algorithms
+
+To simplify key and signature representations, each Falcon parameter set is associated with a distinct algorithm identifier:
+
+| kty   | alg          | Parameter Set |
+|:-----:|:------------:|:-------------:|
+| NTRU  | FALCON512    | 512           |
+| NTRU  | FALCON1024   | 1024          |
+
+
+# Using Falcon with COSE {#Falcon-COSE}
+
+The COSE mapping follows {{RFC8812}}.
+
+## Signature Algorithm Identifiers
+
+| Name        | Value | Description                        | Recommended |
+|-------------|:-----:|------------------------------------|:-----------:|
+| FALCON512   |  TBD1  | Falcon with parameter set 512      |     No      |
+| FALCON1024  |  TBD2  | Falcon with parameter set 1024     |     No      |
+
+## Key Type
+
+| Name | Value | Description                               | Recommended |
+|------|:-----:|-------------------------------------------|:-----------:|
+| NTRU |  TBD3  | Key type for NTRU-based digital signatures |     No      |
 
 # Security Considerations
 
-TODO Security
+The following considerations apply to all parameter sets described in this specification unless otherwise noted.
 
+- Implementations MUST ensure that the key type matches the intended use.
+- Floating-point arithmetic MUST be implemented consistently across hardware.
+- Public keys MUST be validated prior to use.
+
+## Side-Channel Attacks
+
+Implementations of the signing algorithm SHOULD protect the secret key from side-channel attacks. Best practices include, at minimum:
+
+- Constant-time operations.
+- Consistent instruction sequences and memory access patterns.
+- Uniform sampling without leakage of secret information.
+
+## Randomness Considerations
+
+All nonces and random values MUST originate from a trusted, cryptographically secure source of randomness.
 
 # IANA Considerations
 
-This document has no IANA actions.
+## JSON Web Key Types
 
+- Name: NTRU
+- Description: NTRU family post-quantum signature algorithm key pairs
+- JOSE Implementation Requirements: Optional
+- Change Controller: IESG
+- Specification Document(s): This document.
+
+## JSON Web Key Parameters
+
+| Parameter | Description       | Class   | Used with kty | Change Controller | Reference   |
+|----------:|:------------------|:--------|:-----------------|:------------------|:------------|
+| pset    | Parameter set ID  | Public  | NTRU             | IESG              | This document |
+| d       | Private key       | Private | NTRU             | IESG              | {{RFC8037}} |
+| x       | Public key        | Public  | NTRU             | IESG              | {{RFC8037}} |
+
+## JSON Web Signature and Encryption Algorithms
+
+| Algorithm   | Description                    | Usage Location | JOSE Requirement | Controller | Reference     |
+|------------|--------------------------------|----------------|------------------|------------|---------------|
+| FALCON512  | FALCON512 signature algorithm  | alg          | Optional         | IESG       | This document |
+| FALCON1024 | FALCON1024 signature algorithm | alg          | Optional         | IESG       | This document |
 
 --- back
 
-# Acknowledgments
-{:numbered="false"}
+# Acknowledgements {#acknowledgements}
 
-TODO acknowledge.
+We thank David Balenson for careful review and Michael B. Jones for guidance during authorship.
+
+# Document History {#history}
+
+- -02
+  * Added new co-author
+  * Revised draft
+- -01
+  * Added acknowledgements
+  * Added document history
+  * Updated test vectors
+
+- -00
+  * Created draft-ietf-cose-falcon-00 from draft-ietf-cose-post-quantum-signatures-01 following working group feedback
+
+# Test Vectors {#test-vectors}
+
+## NTRU FALCON512
+
+The following test vectors are provided for interoperability testing. JSON line wrapping follows {{RFC7797}} guidance for JWS payload handling where applicable.
+
+### publicKeyJwk
+
+```json
+========== NOTE: '\' line wrapping per RFC 8792 ==========
+{
+ "kty": "NTRU",
+ "alg": "FALCON512",
+ "x": "TUlJRGp6QUhCZ1Vyemc4REJnT0NBNElBQ1g3ZElvVGR5ajZmN3VmME5vbWJP\
+ekVtNG84U3JCMytYdWFveTA1cFFjVkpsWUF0VFkzcWsxcUNZcnJOdU9saXI5OC84dHh5\
+SDZlRXNCNUxVVXBPbjZQWUtZclZFVjFQM1ZHYmd5UmFKaDNkUldrVUpDWTVTVkEra2JB\
+ZUFiM29MVUtMZktTUk9UZGN3MStpL1BkamFNWXpwb2hWOEJqa003REhFTGNqTUhxTlJn\
+SkRDdE95RXAvNTBXanl2Vm9XRXZWVTlZemxjamhMeWw5S29XTklZb1UrWUJGMnRqS2ts\
+VXlsWlBma0F6c3QwSk5FSW0xWkIxS2xWR3ZpYks2WThuaXM0T2F2OHFVa1l5UGdsTzYr\
+cGtJVkdDV09xdHIxclpwZ0JZWm5CbDlJVytrekpuVW5ZbFQ2bDBpVEhtT0MxbFNJZnh6\
+SXBQekpFU1pHQldxQmhmb1BKa0tFVktvV0VFVFFseUNBVXlybTM3Qm9oMGZ3cEdweS9W\
+NDBnNTFZU2xveTkrbEJiaWhnSUpReXdvdUg4YnVrZGtKRGtOYlZNMklkeERvc0hOVEx4\
+M2lYY0RocjZ4eU9jT2w0TmRWYU9CUFdzek9yWGtOSWdUenp5UWNRWW41cFF5MFR1WHd0\
+QW1PN2grRUYxQ1NEdlFhSUZkRDl5ejdWTzFyVmdvY1ZiMHc3R0xyMEZoWHVSb0JsNnpp\
+cnJRenhJUmFiVjlZamFYekpibC9vdlNKMCtnOEttaUlvUE9LajQwVTBOc3phaVcyNldY\
+RmdzNW1rbUxQQTcxR29uQldIQkNua0ZkbzdjM0FJbXlwUjhJQmdObXZvR0RkZXNSUGJW\
+cEdNdUJUOUJyMkxBYjFNbnlTRmExK2xxTkVteW9Da21acUhOM2tGaEp3OUFCZDN6QUlm\
+Z29ldzhkRVBIRm14SnVOVklpM3FqbUVxU0U4QmhQUUdmRjVMSUhKRkpEQk1rUjgrOHZF\
+eG9YMXpsRFZuNzFHMHZkRjBxUGJnV3BKbFZhQ3M1VHlSRlgxR0NZbmJvY2lBR3dKUito\
+ekE5SnNKeGJ4TDVBUlNWR3J3Zlg2UEVJM0gvNUpreU1jSEdnNFdoZmJHbzQ4TEdFVlFx\
+YVpXUkJHNG96aU00TU9HWGFPTHBZNFJSKzB0TVRnT0lpK0sxUWl1TFBkbjhUK0dJK1c5\
+cDFTNTVBU0VHeGRBRFpKZmFSRkZaQll6b1VaeWJtRmt1WmJuUkVGOXh2QzlBbnc3L3Ay\
+cG9HUXRwUGpkVlFZc1MxOUVjVWlCQmRhdU1HLzEya1FDTEhZMjlKL0orU2tFR0hKVTFr\
+OWNRSlNvUTJRYmtpVm5RaVRWQzMwSzdtbkpKOW14U2NOSURBQUlOTFhUNHVDdU9pR20v\
+c1RWMHI5TXJJcjRjTzRNYXBvTTBWbmJZTDA2d25SL2pzTTVPRFhxMVJ5blRMbGFXN29z\
+cDA3TUFmQUhDd2V4M1p0bkFNZUFaUVJ4T0Yza1F3QU1reElITE01aThzMmFHTjJtV3FX\
+VHR5cGlqMEw4eExtUzBhNXBUR2FWb1lhbnZrV1M1UC9CRjdER3hEUmtxdm1SbERyVXdo\
+UjY",
+ "use": "sig"
+}
+```
+
+### privateKeyJwk
+
+```json
+   ========== NOTE: '\' line wrapping per RFC 8792 ==========
+   {
+     "kty": "NTRU",
+     "alg": "FALCON512",
+     "x": "TUlJRGp6QUhCZ1Vyemc4REJnT0NBNElBQ1g3ZElvVGR5ajZmN3VmME5vbWJP\
+   ekVtNG84U3JCMytYdWFveTA1cFFjVkpsWUF0VFkzcWsxcUNZcnJOdU9saXI5OC84dHh5\
+   SDZlRXNCNUxVVXBPbjZQWUtZclZFVjFQM1ZHYmd5UmFKaDNkUldrVUpDWTVTVkEra2JB\
+   ZUFiM29MVUtMZktTUk9UZGN3MStpL1BkamFNWXpwb2hWOEJqa003REhFTGNqTUhxTlJn\
+   SkRDdE95RXAvNTBXanl2Vm9XRXZWVTlZemxjamhMeWw5S29XTklZb1UrWUJGMnRqS2ts\
+   VXlsWlBma0F6c3QwSk5FSW0xWkIxS2xWR3ZpYks2WThuaXM0T2F2OHFVa1l5UGdsTzYr\
+   cGtJVkdDV09xdHIxclpwZ0JZWm5CbDlJVytrekpuVW5ZbFQ2bDBpVEhtT0MxbFNJZnh6\
+   SXBQekpFU1pHQldxQmhmb1BKa0tFVktvV0VFVFFseUNBVXlybTM3Qm9oMGZ3cEdweS9W\
+   NDBnNTFZU2xveTkrbEJiaWhnSUpReXdvdUg4YnVrZGtKRGtOYlZNMklkeERvc0hOVEx4\
+   M2lYY0RocjZ4eU9jT2w0TmRWYU9CUFdzek9yWGtOSWdUenp5UWNRWW41cFF5MFR1WHd0\
+   QW1PN2grRUYxQ1NEdlFhSUZkRDl5ejdWTzFyVmdvY1ZiMHc3R0xyMEZoWHVSb0JsNnpp\
+   cnJRenhJUmFiVjlZamFYekpibC9vdlNKMCtnOEttaUlvUE9LajQwVTBOc3phaVcyNldY\
+   RmdzNW1rbUxQQTcxR29uQldIQkNua0ZkbzdjM0FJbXlwUjhJQmdObXZvR0RkZXNSUGJW\
+   cEdNdUJUOUJyMkxBYjFNbnlTRmExK2xxTkVteW9Da21acUhOM2tGaEp3OUFCZDN6QUlm\
+   Z29ldzhkRVBIRm14SnVOVklpM3FqbUVxU0U4QmhQUUdmRjVMSUhKRkpEQk1rUjgrOHZF\
+   eG9YMXpsRFZuNzFHMHZkRjBxUGJnV3BKbFZhQ3M1VHlSRlgxR0NZbmJvY2lBR3dKUito\
+   ekE5SnNKeGJ4TDVBUlNWR3J3Zlg2UEVJM0gvNUpreU1jSEdnNFdoZmJHbzQ4TEdFVlFx\
+   YVpXUkJHNG96aU00TU9HWGFPTHBZNFJSKzB0TVRnT0lpK0sxUWl1TFBkbjhUK0dJK1c5\
+   cDFTNTVBU0VHeGRBRFpKZmFSRkZaQll6b1VaeWJtRmt1WmJuUkVGOXh2QzlBbnc3L3Ay\
+   cG9HUXRwUGpkVlFZc1MxOUVjVWlCQmRhdU1HLzEya1FDTEhZMjlKL0orU2tFR0hKVTFr\
+   OWNRSlNvUTJRYmtpVm5RaVRWQzMwSzdtbkpKOW14U2NOSURBQUlOTFhUNHVDdU9pR20v\
+   c1RWMHI5TXJJcjRjTzRNYXBvTTBWbmJZTDA2d25SL2pzTTVPRFhxMVJ5blRMbGFXN29z\
+   cDA3TUFmQUhDd2V4M1p0bkFNZUFaUVJ4T0Yza1F3QU1reElITE01aThzMmFHTjJtV3FX\
+   VHR5cGlqMEw4eExtUzBhNXBUR2FWb1lhbnZrV1M1UC9CRjdER3hEUmtxdm1SbERyVXdo\
+   UjY",
+     "d": "TUlJSWxnSUJBREFIQmdVcnpnOERCZ1NDQ0lZRWdnaUNXZmZoUXZBQS8veGd0\
+   UWd1ZWZBUU8vUHZ3Ky9mZ2h1L2ZRZXdTUHVBUyt5QWdCdVBnUWZ2Znd2UlBQdi9nZy8v\
+   Zy9DUFJ2L1BnQmZ1dkFBeEFoZGdQQXdmZitRUXdCQVFmL1BBUS9RZml4UGYreC93ZlFQ\
+   eGhoZ3Z4UHdBUHZmT1JmQTl1L1FTQkFBUXdneUFnUFFmdXdlUXVQd3YrdnhnUFF3Z1BP\
+   aEFBQkFnQkJBUXZ2UE9SaFEveGUrL0J2d0FnUE9RZkFCd1NmUHZnZnZnaEFoZnZBd2hm\
+   QUJlUHMvZS8vUWgvZ2ZSZmRRUVAvaGhodndRZk9BZy9TUHdlL1BnUFJQd1FndlF2eFBo\
+   ZndnQ2dQdnhRdndlLy9mQi9QdmdpZXh3d3dnUU9pZXc5UVB3dndnL2hQUHZOL2d1dy9l\
+   QWdTQXUvL3doZWdCUGUveEErZ0FldlFSZ3Z2Z1FnUndBTy93UFJPd0JoQkJQd3ZnaFBl\
+   Z2V2ZS8vdFFoUWR2ZmZ4UCsrZ3UvK3V3T2dBT2hnQWdBQjlmZk9nK0IreC8vUS92UlB3\
+   dU93dndmdit2UGVRQ0JmUXdnUHdQZnhnUHd3QWZ3Z1Ard2Z3dWZmUmZBUGYvL0FQUXZ3\
+   Umc5Z2dQUXdBdy8vZ0FoUHdneEFBUXZQQXhndnYvU3hnZy92QVJ3UFAraE93UGd2Qi9Q\
+   UWZCK1JleWlndmdBeFArL1FmUndlZWd3dndndit3QnlBd09BaEJQeFJBUGV2dWRQdmdo\
+   ZWdlaFAvT2dBdmdRZmZmZS92ZmZSd1FnUEF3UXZ3dnZ2Z2dndkJCUlBQeFJPL2YveUJB\
+   QWUvdHdQZ2V1ZkFmZmhQZmd4ZHZoUEJRL3ZBKy9oZi9oZWdRQnZTQVJkdk9RQVNpZndP\
+   K3dSQkFCZ2Z3Z2dRdnZRd2Q5QXdQL0Nmd3Z4ZmhRaFF3T3dnUndlL1FndGZkZlBPUVBT\
+   U1J1QWd3UGZBQVF3eFErUVJBd08rQXZRdmYvdy9QTy9RLy9oUWhQd2doQkJCQXQvdnQv\
+   L0FBd0FoZ0FRUCt2US8vdlFnK2cvd3dPK1JQLy8rZndQZ2cvQUFPZ0FBQWhld2gvQVJ2\
+   L2dCQUF3ZXZCQUFRL2Z3T3d2dmZQK2hST0FQZ2dmd2h3Z2dTZyt0QXdneEJnZlJSd3Zn\
+   UFF4UlFCQmh2US93ZlBnaHdlL3dmZi94Z2d4UVF2UC93dmdCaEJBd1EvQi9mQXdBdmdS\
+   ZmhQd2ZQd3d2aEFCZ3dmdlJCUkJCUVJSZ3dBdnd2Z1JPd0JQdnhBZnYrQS91UHdRUHdQ\
+   UnVBQStnQWVnZ2cvd3hmdnd4dndoaFFRaHZ2ZVF3d3cvQS94L09oZnYvZmdEcUV4VHRL\
+   QTc4OHdRTUh2ejNLZmJ5MXlNK0VTUU9LUHdJQ2Z6MkN3bnlIQ2dQRWU0TStnci83aEU0\
+   SnZtL0VBTUYrK1hUeWZILy9DTUJKUS8rR2hEYzVQRWRKZVFtQ2ZjaENQM2IwZ3I3RVF2\
+   eC9OWWQ5ZUxnendiZy9RZnEyeUlBNmpEd04rYjkwZWozL1JiL0IrWUUrdS9XTU9IQzNB\
+   VGcrL0w0NTk4VTdmOFA1Tm5qK2U3VkhpM3M2UWNVNE8wYitzN1UrQW9KRUFiajlRTCs2\
+   Tm5iOGUvbEY5Mngzd0l1K056WS92SFpFeGNNSkRIOUIvbjUrT1B0Nmd3Q0N0MEhHZlBw\
+   OGVudC91TWZDQW56NmhyckRnRFkyZXNpQ0FYNFNQME5JQ24zMlBzZzRRd2JJai82TlFJ\
+   TEFPd1NBQXphSjlMRkN4RWdFaG9MNHRQNkVpc2pIQUVZQVA3QThTN3dHZnNRQlFrcUVR\
+   TUdKd0pBKyt2NXBlNGtMd3dXRmdUM0FncmU4L29JRGczOUZRSUlBZlVLL3huY0Z6dnhE\
+   UXI4eWdIOTcrUUZHdjBIUFBBQTlFUVQ4T2NCNEFVWkRQYitDdVFETXdrRTZCL0k0Zi9X\
+   NE5VVkpBQVZMdzdXemhZaC92eitIT1A4OXh6TSt2enpJN2ZaS0R4SENBY04vTlFBOE5I\
+   Yk5SUGY4UG4xN1FvTTlBVU16UkFXTGYyc0JPcjVEUjhjMmcwbDYvQU1HK1hvNnVidThp\
+   aTg2aW4xSmZFWkMvQVR5T3ZNNVBEeDN2bjE3dlFIQU5EMUsvUGUrL2Y2L3ZjSXRSTGw1\
+   d2tORGhBWjZBOEdFK25xK3luK3lmZnBDUHNsQXZmYjZ2TDYrd250Nmc4VTIvamwvdkxM\
+   SFBMakU4b0E5QWM0Q1g3ZElvVGR5ajZmN3VmME5vbWJPekVtNG84U3JCMytYdWFveTA1\
+   cFFjVkpsWUF0VFkzcWsxcUNZcnJOdU9saXI5OC84dHh5SDZlRXNCNUxVVXBPbjZQWUtZ\
+   clZFVjFQM1ZHYmd5UmFKaDNkUldrVUpDWTVTVkEra2JBZUFiM29MVUtMZktTUk9UZGN3\
+   MStpL1BkamFNWXpwb2hWOEJqa003REhFTGNqTUhxTlJnSkRDdE95RXAvNTBXanl2Vm9X\
+   RXZWVTlZemxjamhMeWw5S29XTklZb1UrWUJGMnRqS2tsVXlsWlBma0F6c3QwSk5FSW0x\
+   WkIxS2xWR3ZpYks2WThuaXM0T2F2OHFVa1l5UGdsTzYrcGtJVkdDV09xdHIxclpwZ0JZ\
+   Wm5CbDlJVytrekpuVW5ZbFQ2bDBpVEhtT0MxbFNJZnh6SXBQekpFU1pHQldxQmhmb1BK\
+   a0tFVktvV0VFVFFseUNBVXlybTM3Qm9oMGZ3cEdweS9WNDBnNTFZU2xveTkrbEJiaWhn\
+   SUpReXdvdUg4YnVrZGtKRGtOYlZNMklkeERvc0hOVEx4M2lYY0RocjZ4eU9jT2w0TmRW\
+   YU9CUFdzek9yWGtOSWdUenp5UWNRWW41cFF5MFR1WHd0QW1PN2grRUYxQ1NEdlFhSUZk\
+   RDl5ejdWTzFyVmdvY1ZiMHc3R0xyMEZoWHVSb0JsNnppcnJRenhJUmFiVjlZamFYekpi\
+   bC9vdlNKMCtnOEttaUlvUE9LajQwVTBOc3phaVcyNldYRmdzNW1rbUxQQTcxR29uQldI\
+   QkNua0ZkbzdjM0FJbXlwUjhJQmdObXZvR0RkZXNSUGJWcEdNdUJUOUJyMkxBYjFNbnlT\
+   RmExK2xxTkVteW9Da21acUhOM2tGaEp3OUFCZDN6QUlmZ29ldzhkRVBIRm14SnVOVklp\
+   M3FqbUVxU0U4QmhQUUdmRjVMSUhKRkpEQk1rUjgrOHZFeG9YMXpsRFZuNzFHMHZkRjBx\
+   UGJnV3BKbFZhQ3M1VHlSRlgxR0NZbmJvY2lBR3dKUitoekE5SnNKeGJ4TDVBUlNWR3J3\
+   Zlg2UEVJM0gvNUpreU1jSEdnNFdoZmJHbzQ4TEdFVlFxYVpXUkJHNG96aU00TU9HWGFP\
+   THBZNFJSKzB0TVRnT0lpK0sxUWl1TFBkbjhUK0dJK1c5cDFTNTVBU0VHeGRBRFpKZmFS\
+   RkZaQll6b1VaeWJtRmt1WmJuUkVGOXh2QzlBbnc3L3AycG9HUXRwUGpkVlFZc1MxOUVj\
+   VWlCQmRhdU1HLzEya1FDTEhZMjlKL0orU2tFR0hKVTFrOWNRSlNvUTJRYmtpVm5RaVRW\
+   QzMwSzdtbkpKOW14U2NOSURBQUlOTFhUNHVDdU9pR20vc1RWMHI5TXJJcjRjTzRNYXBv\
+   TTBWbmJZTDA2d25SL2pzTTVPRFhxMVJ5blRMbGFXN29zcDA3TUFmQUhDd2V4M1p0bkFN\
+   ZUFaUVJ4T0Yza1F3QU1reElITE01aThzMmFHTjJtV3FXVHR5cGlqMEw4eExtUzBhNXBU\
+   R2FWb1lhbnZrV1M1UC9CRjdER3hEUmtxdm1SbERyVXdoUjY",
+     "use": "sig"
+   }
+```
+
+### JWS
+
+```json
+   ========== NOTE: '\' line wrapping per RFC 8792 ==========
+   eyJhbGciOiAiRkFMQ09ONTEyIiwgImt0eSI6ICJOVFJVIiwgInR5cCI6ICJKV1QifQ.e\
+   yJtZXNzYWdlIjogImhlbGxvIHdvcmxkIn0.OfsYG7sdSy2rsww2Np5ZwWxpr6hZrNHLu\
+   svsFtb8KcK2mrC5BRYQw1Z_pao6qWJj46wkiBlqgcFtqCNFj0L0DmMcuqx6DMjOcp9GE\
+   fqadmfIgivqlkOY9WSfS71K7GIw4T8Z1av5U_dlKjYWKwZqzK75nznsspTnDqRbTETK3\
+   OMIjicJ2-3VwjU0HGQXYyiJZo_OPOc__yyyJU7BfdlLMneUj9KZqQDdkloLBmeprdY5w\
+   ihsFcvlAUJ52IYzf-nmaAs1wzOoanjUJVyNFN4KAX58OpF47MrNnsLOmAQuAlrn6Uo0J\
+   h7YoqySUhtOKv8oY2rHU2Rb4JYqcYQdVA0qTibErkitJvqYAzdTeJBOVgtmVHDCRIbeF\
+   4SfL-TpZfsJadNDYUx2G9uGyqadwlyNS7tVjZIhGo807mfHfUi4btjCYZTd1zA0SFZFl\
+   tFCZivD7pxuCw-Ykf85ayy9sFu_W_UgTRC038I82YfbwdnbPH99Rx5ZGP1ySNGeuUuf3\
+   YxLT0PQDFLhW_jTZhDZCwh1Yj3UcQiDDLsYpdDYq1ipeB1KLm6mxaBqRRqjV2xcgpTyV\
+   aQNXin_aPHwJqoOlUy45E2sY482TS97mN64zee0uPM7FFIpVK3Pfx18i9lpuRS9RKEdV\
+   u0MKT4ZJKMHwEqZCEQFJfhrPvEdjblK93tj1xYs8auvLE2VUZo-nbEckuS7sdeDN9BS7\
+   Bf4-0EbQx-ML78mw5Clix2o49udTF-PU6xOkM83ZEFI5q4oV3LeF29Xs_Z1kl5uWKf2F\
+   nwKtz0hVTPKfZ9iPso6ukO3-OQ87EGFyHaf5zdXgXLwxFEwQh-WE3XmfboyVfL4yUkXv\
+   RUmNfpniJfXbMA8SD0mZp8ysA
+```
