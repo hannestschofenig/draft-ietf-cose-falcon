@@ -4,16 +4,24 @@
 <meta charset="utf-8">
 <meta content="Common,Latin" name="scripts">
 <meta content="initial-scale=1.0" name="viewport">
-<title>TODO - Your title</title>
-<meta content="Your Name Here" name="author">
+<title>JOSE and COSE Encoding for Falcon</title>
+<meta content="Michael Prorock" name="author">
+<meta content="Orie Steele" name="author">
+<meta content="Rafael Misoczki" name="author">
+<meta content="Michael Osborne" name="author">
+<meta content="Christine Cloostermans" name="author">
+<meta content="Hannes Tschofenig" name="author">
 <meta content="
-       TODO Abstract 
+       This document describes JSON and CBOR serializations for Falcon, a Post-Quantum Cryptography (PQC) signature suite. 
+       It does not define new cryptographic primitives; rather, it specifies how existing Falcon mechanisms are serialized for use in JOSE and COSE. 
+       This document registers key types and signature algorithms for JOSE and COSE, specifically 'NTRU', 'FALCON512', and 'FALCON1024'. 
     " name="description">
 <meta content="xml2rfc 3.30.2" name="generator">
-<meta content="next generation" name="keyword">
-<meta content="unicorn" name="keyword">
-<meta content="sparkling distributed ledger" name="keyword">
-<meta content="draft-todo-yourname-protocol-latest" name="ietf.draft">
+<meta content="JOSE" name="keyword">
+<meta content="COSE" name="keyword">
+<meta content="PQC" name="keyword">
+<meta content="FALCON" name="keyword">
+<meta content="draft-ietf-cose-falcon-latest" name="ietf.draft">
 <!-- Generator version information:
   xml2rfc 3.30.2
     Python 3.12.11
@@ -1045,11 +1053,11 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <table class="ears">
 <thead><tr>
 <td class="left">Internet-Draft</td>
-<td class="center">TODO - Abbreviation</td>
+<td class="center">JOSE and COSE Encoding for Falcon</td>
 <td class="right">October 2025</td>
 </tr></thead>
 <tfoot><tr>
-<td class="left">Here</td>
+<td class="left">Prorock, et al.</td>
 <td class="center">Expires 11 April 2026</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
@@ -1058,30 +1066,52 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <div id="internal-metadata" class="document-information">
 <dl id="identifiers">
 <dt class="label-workgroup">Workgroup:</dt>
-<dd class="workgroup">WG Working Group</dd>
+<dd class="workgroup">CBOR Object Signing and Encryption</dd>
 <dt class="label-internet-draft">Internet-Draft:</dt>
-<dd class="internet-draft">draft-todo-yourname-protocol-latest</dd>
+<dd class="internet-draft">draft-ietf-cose-falcon-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
 <time datetime="2025-10-08" class="published">8 October 2025</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
-<dd class="intended-status">Informational</dd>
+<dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
 <dd class="expires"><time datetime="2026-04-11">11 April 2026</time></dd>
-<dt class="label-authors">Author:</dt>
+<dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
-      <div class="author-name">Y. N. Here</div>
-<div class="org">Your Organization Here</div>
+      <div class="author-name">M. Prorock</div>
+<div class="org">mesur.io</div>
+</div>
+<div class="author">
+      <div class="author-name">O. Steele</div>
+<div class="org">Tradeverifyd</div>
+</div>
+<div class="author">
+      <div class="author-name">R. Misoczki</div>
+<div class="org">Google</div>
+</div>
+<div class="author">
+      <div class="author-name">M. Osborne</div>
+<div class="org">IBM</div>
+</div>
+<div class="author">
+      <div class="author-name">C. Cloostermans</div>
+<div class="org">NXP</div>
+</div>
+<div class="author">
+      <div class="author-name">H. Tschofenig</div>
+<div class="org">H-BRS</div>
 </div>
 </dd>
 </dl>
 </div>
-<h1 id="title">TODO - Your title</h1>
+<h1 id="title">JOSE and COSE Encoding for Falcon</h1>
 <section id="section-abstract">
       <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
-<p id="section-abstract-1">TODO Abstract<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-1">This document describes JSON and CBOR serializations for Falcon, a Post-Quantum Cryptography (PQC) signature suite.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+<p id="section-abstract-2">It does not define new cryptographic primitives; rather, it specifies how existing Falcon mechanisms are serialized for use in JOSE and COSE.<a href="#section-abstract-2" class="pilcrow">¶</a></p>
+<p id="section-abstract-3">This document registers key types and signature algorithms for JOSE and COSE, specifically 'NTRU', 'FALCON512', and 'FALCON1024'.<a href="#section-abstract-3" class="pilcrow">¶</a></p>
 </section>
 <section class="note rfcEditorRemove" id="section-note.1">
       <h2 id="name-about-this-document">
@@ -1089,14 +1119,15 @@ svg :is([fill="white"], [fill^="#fff"]) {
       </h2>
 <p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
 <p id="section-note.1-2">
-        The latest revision of this draft can be found at <span><a href="https://example.com/LATEST">https://example.com/LATEST</a></span>.
-        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-todo-yourname-protocol/">https://datatracker.ietf.org/doc/draft-todo-yourname-protocol/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+        The latest revision of this draft can be found at <span><a href="https://hannestschofenig.github.io/draft-ietf-cose-falcon/draft-ietf-cose-falcon.html">https://hannestschofenig.github.io/draft-ietf-cose-falcon/draft-ietf-cose-falcon.html</a></span>.
+        Status information for this document may be found at <span><a href="https://datatracker.ietf.org/doc/draft-ietf-cose-falcon/">https://datatracker.ietf.org/doc/draft-ietf-cose-falcon/</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
 <p id="section-note.1-3">
         Discussion of this document takes place on the
-        WG Working Group mailing list (<span><a href="mailto:WG@example.com">mailto:WG@example.com</a></span>),
-        which is archived at <span><a href="https://example.com/WG">https://example.com/WG</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
+        CBOR Object Signing and Encryption Working Group mailing list (<span><a href="mailto:cose@ietf.org">mailto:cose@ietf.org</a></span>),
+        which is archived at <span><a href="https://mailarchive.ietf.org/arch/browse/cose/">https://mailarchive.ietf.org/arch/browse/cose/</a></span>.
+        Subscribe at <span><a href="https://www.ietf.org/mailman/listinfo/cose/">https://www.ietf.org/mailman/listinfo/cose/</a></span>.<a href="#section-note.1-3" class="pilcrow">¶</a></p>
 <p id="section-note.1-4">Source for this draft and an issue tracker can be found at
-        <span><a href="https://github.com/USER/REPO">https://github.com/USER/REPO</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
+        <span><a href="https://github.com/hannestschofenig/draft-ietf-cose-falcon">https://github.com/hannestschofenig/draft-ietf-cose-falcon</a></span>.<a href="#section-note.1-4" class="pilcrow">¶</a></p>
 </section>
 <div id="status-of-memo">
 <section id="section-boilerplate.1">
@@ -1153,19 +1184,99 @@ svg :is([fill="white"], [fill^="#fff"]) {
             <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="auto internal xref">2</a>.  <a href="#name-conventions-and-definitions" class="internal xref">Conventions and Definitions</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
-            <p id="section-toc.1-1.3.1" class="keepWithNext"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+            <p id="section-toc.1-1.3.1" class="keepWithNext"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-the-falcon-algorithm-overvi" class="internal xref">The Falcon Algorithm Overview</a></p>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
-            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-using-falcon-with-jose" class="internal xref">Using Falcon with JOSE</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.1">
+                <p id="section-toc.1-1.4.2.1.1"><a href="#section-4.1" class="auto internal xref">4.1</a>.  <a href="#name-falcon-key-representations" class="internal xref">Falcon Key Representations</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.2">
+                <p id="section-toc.1-1.4.2.2.1"><a href="#section-4.2" class="auto internal xref">4.2</a>.  <a href="#name-jwk-thumbprints" class="internal xref">JWK Thumbprints</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.3">
+                <p id="section-toc.1-1.4.2.3.1"><a href="#section-4.3" class="auto internal xref">4.3</a>.  <a href="#name-jwk-validation-rules" class="internal xref">JWK Validation Rules</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4.2.4">
+                <p id="section-toc.1-1.4.2.4.1"><a href="#section-4.4" class="auto internal xref">4.4</a>.  <a href="#name-falcon-algorithms" class="internal xref">Falcon Algorithms</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5">
-            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="auto internal xref">5</a>.  <a href="#name-using-falcon-with-cose" class="internal xref">Using Falcon with COSE</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.1">
+                <p id="section-toc.1-1.5.2.1.1"><a href="#section-5.1" class="auto internal xref">5.1</a>.  <a href="#name-signature-algorithm-identif" class="internal xref">Signature Algorithm Identifiers</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.5.2.2">
+                <p id="section-toc.1-1.5.2.2.1"><a href="#section-5.2" class="auto internal xref">5.2</a>.  <a href="#name-key-type" class="internal xref">Key Type</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6">
-            <p id="section-toc.1-1.6.1"><a href="#appendix-A" class="auto internal xref"></a><a href="#name-acknowledgments" class="internal xref">Acknowledgments</a></p>
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="auto internal xref">6</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.1">
+                <p id="section-toc.1-1.6.2.1.1"><a href="#section-6.1" class="auto internal xref">6.1</a>.  <a href="#name-side-channel-attacks" class="internal xref">Side-Channel Attacks</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.6.2.2">
+                <p id="section-toc.1-1.6.2.2.1"><a href="#section-6.2" class="auto internal xref">6.2</a>.  <a href="#name-randomness-considerations" class="internal xref">Randomness Considerations</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7">
-            <p id="section-toc.1-1.7.1"><a href="#appendix-B" class="auto internal xref"></a><a href="#name-authors-address" class="internal xref">Author's Address</a></p>
+            <p id="section-toc.1-1.7.1"><a href="#section-7" class="auto internal xref">7</a>.  <a href="#name-iana-considerations" class="internal xref">IANA Considerations</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.1">
+                <p id="section-toc.1-1.7.2.1.1"><a href="#section-7.1" class="auto internal xref">7.1</a>.  <a href="#name-json-web-key-types" class="internal xref">JSON Web Key Types</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.2">
+                <p id="section-toc.1-1.7.2.2.1"><a href="#section-7.2" class="auto internal xref">7.2</a>.  <a href="#name-json-web-key-parameters" class="internal xref">JSON Web Key Parameters</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.7.2.3">
+                <p id="section-toc.1-1.7.2.3.1"><a href="#section-7.3" class="auto internal xref">7.3</a>.  <a href="#name-json-web-signature-and-encr" class="internal xref">JSON Web Signature and Encryption Algorithms</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-8" class="auto internal xref">8</a>.  <a href="#name-references" class="internal xref">References</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.1">
+                <p id="section-toc.1-1.8.2.1.1"><a href="#section-8.1" class="auto internal xref">8.1</a>.  <a href="#name-normative-references" class="internal xref">Normative References</a></p>
+</li>
+              <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.8.2.2">
+                <p id="section-toc.1-1.8.2.2.1"><a href="#section-8.2" class="auto internal xref">8.2</a>.  <a href="#name-informative-references" class="internal xref">Informative References</a></p>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.9">
+            <p id="section-toc.1-1.9.1"><a href="#appendix-A" class="auto internal xref">Appendix A</a>.  <a href="#name-acknowledgements" class="internal xref">Acknowledgements</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.10">
+            <p id="section-toc.1-1.10.1"><a href="#appendix-B" class="auto internal xref">Appendix B</a>.  <a href="#name-document-history" class="internal xref">Document History</a></p>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11">
+            <p id="section-toc.1-1.11.1"><a href="#appendix-C" class="auto internal xref">Appendix C</a>.  <a href="#name-test-vectors" class="internal xref">Test Vectors</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1">
+                <p id="section-toc.1-1.11.2.1.1"><a href="#appendix-C.1" class="auto internal xref">C.1</a>.  <a href="#name-ntru-falcon512" class="internal xref">NTRU FALCON512</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1.2.1">
+                    <p id="section-toc.1-1.11.2.1.2.1.1"><a href="#appendix-C.1.1" class="auto internal xref">C.1.1</a>.  <a href="#name-publickeyjwk" class="internal xref">publicKeyJwk</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1.2.2">
+                    <p id="section-toc.1-1.11.2.1.2.2.1"><a href="#appendix-C.1.2" class="auto internal xref">C.1.2</a>.  <a href="#name-privatekeyjwk" class="internal xref">privateKeyJwk</a></p>
+</li>
+                  <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.11.2.1.2.3">
+                    <p id="section-toc.1-1.11.2.1.2.3.1"><a href="#appendix-C.1.3" class="auto internal xref">C.1.3</a>.  <a href="#name-jws" class="internal xref">JWS</a></p>
+</li>
+                </ul>
+</li>
+            </ul>
+</li>
+          <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.12">
+            <p id="section-toc.1-1.12.1"><a href="#appendix-D" class="auto internal xref"></a><a href="#name-authors-addresses" class="internal xref">Authors' Addresses</a></p>
 </li>
         </ul>
 </nav>
@@ -1176,7 +1287,10 @@ svg :is([fill="white"], [fill^="#fff"]) {
       <h2 id="name-introduction">
 <a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
       </h2>
-<p id="section-1-1">TODO Introduction<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-1">Falcon (Fast Fourier Lattice-based Compact Signatures over NTRU) is a lattice-based signature scheme <span>[<a href="#Falcon" class="cite xref">Falcon</a>]</span>. It is based on the GPV hash-and-sign lattice framework introduced by Gentry, Peikert, and Vaikuntanathan <span>[<a href="#GPV08" class="cite xref">GPV08</a>]</span>, which requires both a class of lattices and a trapdoor sampling technique. Falcon uses NTRU lattices for the former and a fast Fourier sampling technique <span>[<a href="#DP16" class="cite xref">DP16</a>]</span> for the latter.<a href="#section-1-1" class="pilcrow">¶</a></p>
+<p id="section-1-2">The core hard problem underlying Falcon is the Short Integer Solution (SIS) problem over NTRU lattices, for which no efficient solving algorithms are currently known in either classical or quantum settings.<a href="#section-1-2" class="pilcrow">¶</a></p>
+<p id="section-1-3">Falcon's design emphasizes compactness, which minimizes the combined size of the public key and signature. It offers efficient signing and verification, with operations of complexity O(n log n). However, Falcon's algorithms are non-trivial to implement and require floating-point arithmetic support.<a href="#section-1-3" class="pilcrow">¶</a></p>
+<p id="section-1-4">This document specifies the use of Falcon with JSON Object Signing and Encryption (JOSE) <span>[<a href="#RFC7515" class="cite xref">RFC7515</a>]</span> and CBOR Object Signing and Encryption (COSE) <span>[<a href="#RFC8812" class="cite xref">RFC8812</a>]</span>. It registers the 'NTRU' key type and the 'FALCON512' and 'FALCON1024' signature algorithms.<a href="#section-1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="conventions-and-definitions">
@@ -1188,60 +1302,825 @@ svg :is([fill="white"], [fill^="#fff"]) {
 "<span class="bcp14">MAY</span>", and "<span class="bcp14">OPTIONAL</span>" in this document are to be interpreted as
 described in BCP 14 <span>[<a href="#RFC2119" class="cite xref">RFC2119</a>]</span> <span>[<a href="#RFC8174" class="cite xref">RFC8174</a>]</span> when, and only when, they
 appear in all capitals, as shown here.<a href="#section-2-1" class="pilcrow">¶</a></p>
+<p id="section-2-2">The following terminology is used throughout this document:<a href="#section-2-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2-3.1">
+          <p id="section-2-3.1.1">PK: The public key for the signature scheme.<a href="#section-2-3.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-2-3.2">
+          <p id="section-2-3.2.1">SK: The secret key for the signature scheme.<a href="#section-2-3.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-2-3.3">
+          <p id="section-2-3.3.1">signature: The digital signature output.<a href="#section-2-3.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-2-3.4">
+          <p id="section-2-3.4.1">message: The input to be signed by the signature scheme.<a href="#section-2-3.4.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-2-3.5">
+          <p id="section-2-3.5.1">sha256: The SHA-256 hash function defined in <span>[<a href="#RFC6234" class="cite xref">RFC6234</a>]</span>.<a href="#section-2-3.5.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+</section>
+</div>
+<div id="the-falcon-algorithm-overview">
+<section id="section-3">
+      <h2 id="name-the-falcon-algorithm-overvi">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-the-falcon-algorithm-overvi" class="section-name selfRef">The Falcon Algorithm Overview</a>
+      </h2>
+<p id="section-3-1">Implementations of this specification <span class="bcp14">MUST</span> follow the key generation, signing, and verification procedures descirbed in <span>[<a href="#Falcon" class="cite xref">Falcon</a>]</span>.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">Falcon brings several advantages over other signature algorithms:<a href="#section-3-2" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-3-3.1">
+          <p id="section-3-3.1.1">Post-quantum security: Secure under the assumption that the NTRU-SIS problem remains hard.<a href="#section-3-3.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-3.2">
+          <p id="section-3-3.2.1">Compactness: Minimizes the combined signature and public key sizes.<a href="#section-3-3.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-3.3">
+          <p id="section-3-3.3.1">Efficiency: Enables high signing and verification throughput on common hardware.<a href="#section-3-3.3.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-3-3.4">
+          <p id="section-3-3.4.1">Side-channel resistance: Requires careful constant-time implementation, particularly for Gaussian sampling.<a href="#section-3-3.4.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<p id="section-3-4">The sizes of the public key, private key, and signature are as follows:<a href="#section-3-4" class="pilcrow">¶</a></p>
+<table class="center" id="table-1">
+        <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
+<thead>
+          <tr>
+            <th class="text-right" rowspan="1" colspan="1">Variable</th>
+            <th class="text-left" rowspan="1" colspan="1">Parameter Set</th>
+            <th class="text-left" rowspan="1" colspan="1">Size (bytes)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-right" rowspan="1" colspan="1">Signature</td>
+            <td class="text-left" rowspan="1" colspan="1">512</td>
+            <td class="text-left" rowspan="1" colspan="1">666</td>
+          </tr>
+          <tr>
+            <td class="text-right" rowspan="1" colspan="1">Public Key</td>
+            <td class="text-left" rowspan="1" colspan="1">512</td>
+            <td class="text-left" rowspan="1" colspan="1">897</td>
+          </tr>
+          <tr>
+            <td class="text-right" rowspan="1" colspan="1">Private Key</td>
+            <td class="text-left" rowspan="1" colspan="1">512</td>
+            <td class="text-left" rowspan="1" colspan="1">1281</td>
+          </tr>
+          <tr>
+            <td class="text-right" rowspan="1" colspan="1">Signature</td>
+            <td class="text-left" rowspan="1" colspan="1">1024</td>
+            <td class="text-left" rowspan="1" colspan="1">1280</td>
+          </tr>
+          <tr>
+            <td class="text-right" rowspan="1" colspan="1">Public Key</td>
+            <td class="text-left" rowspan="1" colspan="1">1024</td>
+            <td class="text-left" rowspan="1" colspan="1">1793</td>
+          </tr>
+          <tr>
+            <td class="text-right" rowspan="1" colspan="1">Private Key</td>
+            <td class="text-left" rowspan="1" colspan="1">1024</td>
+            <td class="text-left" rowspan="1" colspan="1">2305</td>
+          </tr>
+        </tbody>
+      </table>
+</section>
+</div>
+<div id="Falcon-JOSE">
+<section id="section-4">
+      <h2 id="name-using-falcon-with-jose">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-using-falcon-with-jose" class="section-name selfRef">Using Falcon with JOSE</a>
+      </h2>
+<p id="section-4-1">This section follows <span>[<a href="#RFC8812" class="cite xref">RFC8812</a>]</span> regarding JOSE/COSE registration and mapping.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<div id="falcon-key-representations">
+<section id="section-4.1">
+        <h3 id="name-falcon-key-representations">
+<a href="#section-4.1" class="section-number selfRef">4.1. </a><a href="#name-falcon-key-representations" class="section-name selfRef">Falcon Key Representations</a>
+        </h3>
+<p id="section-4.1-1">A new key type (<code>kty</code>) value <code>NTRU</code> is defined for keys related to NTRU-based post-quantum algorithms. It supports base64url-encoded public and private keys. The following parameters apply:<a href="#section-4.1-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-2">
+          <caption><a href="#table-2" class="selfRef">Table 2</a></caption>
+<thead>
+            <tr>
+              <th class="text-right" rowspan="1" colspan="1">Parameter</th>
+              <th class="text-left" rowspan="1" colspan="1">Requirement</th>
+              <th class="text-left" rowspan="1" colspan="1">Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-right" rowspan="1" colspan="1">
+                <code>kty</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <span class="bcp14">REQUIRED</span>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <span class="bcp14">MUST</span> be <code>NTRU</code>.</td>
+            </tr>
+            <tr>
+              <td class="text-right" rowspan="1" colspan="1">
+                <code>alg</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <span class="bcp14">REQUIRED</span>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <span class="bcp14">MUST</span> be one of <code>FALCON512</code> or <code>FALCON1024</code>.</td>
+            </tr>
+            <tr>
+              <td class="text-right" rowspan="1" colspan="1">
+                <code>pset</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <span class="bcp14">OPTIONAL</span>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">Indicates the parameter set used.</td>
+            </tr>
+            <tr>
+              <td class="text-right" rowspan="1" colspan="1">
+                <code>x</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <span class="bcp14">REQUIRED</span>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">Base64url-encoded public key (<span>[<a href="#RFC4648" class="cite xref">RFC4648</a>]</span>).</td>
+            </tr>
+            <tr>
+              <td class="text-right" rowspan="1" colspan="1">
+                <code>d</code>
+</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <span class="bcp14">REQUIRED</span> (private keys)</td>
+              <td class="text-left" rowspan="1" colspan="1">Base64url-encoded private key; <span class="bcp14">MUST NOT</span> appear in public keys.</td>
+            </tr>
+          </tbody>
+        </table>
+</section>
+</div>
+<div id="jwk-thumbprints">
+<section id="section-4.2">
+        <h3 id="name-jwk-thumbprints">
+<a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-jwk-thumbprints" class="section-name selfRef">JWK Thumbprints</a>
+        </h3>
+<p id="section-4.2-1">When computing JWK Thumbprints <span>[<a href="#RFC7638" class="cite xref">RFC7638</a>]</span>, include the fields <code>kty</code>, <code>alg</code>, and <code>x</code> in lexicographic order.<a href="#section-4.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="jwk-validation-rules">
+<section id="section-4.3">
+        <h3 id="name-jwk-validation-rules">
+<a href="#section-4.3" class="section-number selfRef">4.3. </a><a href="#name-jwk-validation-rules" class="section-name selfRef">JWK Validation Rules</a>
+        </h3>
+<ul class="normal">
+<li class="normal" id="section-4.3-1.1">
+            <p id="section-4.3-1.1.1"><code>kty</code> <span class="bcp14">MUST</span> be <code>NTRU</code>.<a href="#section-4.3-1.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.3-1.2">
+            <p id="section-4.3-1.2.1"><code>alg</code> <span class="bcp14">MUST</span> indicate a valid Falcon parameterization.<a href="#section-4.3-1.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.3-1.3">
+            <p id="section-4.3-1.3.1">If <code>key_ops</code> is present, it <span class="bcp14">MUST</span> include <code>sign</code> for signing keys and <code>verify</code> for verification keys.<a href="#section-4.3-1.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-4.3-1.4">
+            <p id="section-4.3-1.4.1">If <code>use</code> is present, it <span class="bcp14">MUST</span> be <code>sig</code>.<a href="#section-4.3-1.4.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+<div id="falcon-algorithms">
+<section id="section-4.4">
+        <h3 id="name-falcon-algorithms">
+<a href="#section-4.4" class="section-number selfRef">4.4. </a><a href="#name-falcon-algorithms" class="section-name selfRef">Falcon Algorithms</a>
+        </h3>
+<p id="section-4.4-1">To simplify key and signature representations, each Falcon parameter set is associated with a distinct algorithm identifier:<a href="#section-4.4-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-3">
+          <caption><a href="#table-3" class="selfRef">Table 3</a></caption>
+<thead>
+            <tr>
+              <th class="text-center" rowspan="1" colspan="1">kty</th>
+              <th class="text-center" rowspan="1" colspan="1">alg</th>
+              <th class="text-center" rowspan="1" colspan="1">Parameter Set</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-center" rowspan="1" colspan="1">NTRU</td>
+              <td class="text-center" rowspan="1" colspan="1">FALCON512</td>
+              <td class="text-center" rowspan="1" colspan="1">512</td>
+            </tr>
+            <tr>
+              <td class="text-center" rowspan="1" colspan="1">NTRU</td>
+              <td class="text-center" rowspan="1" colspan="1">FALCON1024</td>
+              <td class="text-center" rowspan="1" colspan="1">1024</td>
+            </tr>
+          </tbody>
+        </table>
+</section>
+</div>
+</section>
+</div>
+<div id="Falcon-COSE">
+<section id="section-5">
+      <h2 id="name-using-falcon-with-cose">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-using-falcon-with-cose" class="section-name selfRef">Using Falcon with COSE</a>
+      </h2>
+<p id="section-5-1">The COSE mapping follows <span>[<a href="#RFC8812" class="cite xref">RFC8812</a>]</span>.<a href="#section-5-1" class="pilcrow">¶</a></p>
+<div id="signature-algorithm-identifiers">
+<section id="section-5.1">
+        <h3 id="name-signature-algorithm-identif">
+<a href="#section-5.1" class="section-number selfRef">5.1. </a><a href="#name-signature-algorithm-identif" class="section-name selfRef">Signature Algorithm Identifiers</a>
+        </h3>
+<table class="center" id="table-4">
+          <caption><a href="#table-4" class="selfRef">Table 4</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Name</th>
+              <th class="text-center" rowspan="1" colspan="1">Value</th>
+              <th class="text-left" rowspan="1" colspan="1">Description</th>
+              <th class="text-center" rowspan="1" colspan="1">Recommended</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">FALCON512</td>
+              <td class="text-center" rowspan="1" colspan="1">TBD1</td>
+              <td class="text-left" rowspan="1" colspan="1">Falcon with parameter set 512</td>
+              <td class="text-center" rowspan="1" colspan="1">No</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">FALCON1024</td>
+              <td class="text-center" rowspan="1" colspan="1">TBD2</td>
+              <td class="text-left" rowspan="1" colspan="1">Falcon with parameter set 1024</td>
+              <td class="text-center" rowspan="1" colspan="1">No</td>
+            </tr>
+          </tbody>
+        </table>
+</section>
+</div>
+<div id="key-type">
+<section id="section-5.2">
+        <h3 id="name-key-type">
+<a href="#section-5.2" class="section-number selfRef">5.2. </a><a href="#name-key-type" class="section-name selfRef">Key Type</a>
+        </h3>
+<table class="center" id="table-5">
+          <caption><a href="#table-5" class="selfRef">Table 5</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Name</th>
+              <th class="text-center" rowspan="1" colspan="1">Value</th>
+              <th class="text-left" rowspan="1" colspan="1">Description</th>
+              <th class="text-center" rowspan="1" colspan="1">Recommended</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">NTRU</td>
+              <td class="text-center" rowspan="1" colspan="1">TBD3</td>
+              <td class="text-left" rowspan="1" colspan="1">Key type for NTRU-based digital signatures</td>
+              <td class="text-center" rowspan="1" colspan="1">No</td>
+            </tr>
+          </tbody>
+        </table>
+</section>
+</div>
 </section>
 </div>
 <div id="security-considerations">
-<section id="section-3">
+<section id="section-6">
       <h2 id="name-security-considerations">
-<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
       </h2>
-<p id="section-3-1">TODO Security<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-6-1">The following considerations apply to all parameter sets described in this specification unless otherwise noted.<a href="#section-6-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-6-2.1">
+          <p id="section-6-2.1.1">Implementations <span class="bcp14">MUST</span> ensure that the key type matches the intended use.<a href="#section-6-2.1.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-2.2">
+          <p id="section-6-2.2.1">Floating-point arithmetic <span class="bcp14">MUST</span> be implemented consistently across hardware.<a href="#section-6-2.2.1" class="pilcrow">¶</a></p>
+</li>
+        <li class="normal" id="section-6-2.3">
+          <p id="section-6-2.3.1">Public keys <span class="bcp14">MUST</span> be validated prior to use.<a href="#section-6-2.3.1" class="pilcrow">¶</a></p>
+</li>
+      </ul>
+<div id="side-channel-attacks">
+<section id="section-6.1">
+        <h3 id="name-side-channel-attacks">
+<a href="#section-6.1" class="section-number selfRef">6.1. </a><a href="#name-side-channel-attacks" class="section-name selfRef">Side-Channel Attacks</a>
+        </h3>
+<p id="section-6.1-1">Implementations of the signing algorithm <span class="bcp14">SHOULD</span> protect the secret key from side-channel attacks. Best practices include, at minimum:<a href="#section-6.1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-6.1-2.1">
+            <p id="section-6.1-2.1.1">Constant-time operations.<a href="#section-6.1-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-6.1-2.2">
+            <p id="section-6.1-2.2.1">Consistent instruction sequences and memory access patterns.<a href="#section-6.1-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-6.1-2.3">
+            <p id="section-6.1-2.3.1">Uniform sampling without leakage of secret information.<a href="#section-6.1-2.3.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
+</section>
+</div>
+<div id="randomness-considerations">
+<section id="section-6.2">
+        <h3 id="name-randomness-considerations">
+<a href="#section-6.2" class="section-number selfRef">6.2. </a><a href="#name-randomness-considerations" class="section-name selfRef">Randomness Considerations</a>
+        </h3>
+<p id="section-6.2-1">All nonces and random values <span class="bcp14">MUST</span> originate from a trusted, cryptographically secure source of randomness.<a href="#section-6.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 <div id="iana-considerations">
-<section id="section-4">
+<section id="section-7">
       <h2 id="name-iana-considerations">
-<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+<a href="#section-7" class="section-number selfRef">7. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
       </h2>
-<p id="section-4-1">This document has no IANA actions.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<div id="json-web-key-types">
+<section id="section-7.1">
+        <h3 id="name-json-web-key-types">
+<a href="#section-7.1" class="section-number selfRef">7.1. </a><a href="#name-json-web-key-types" class="section-name selfRef">JSON Web Key Types</a>
+        </h3>
+<ul class="normal">
+<li class="normal" id="section-7.1-1.1">
+            <p id="section-7.1-1.1.1">Name: NTRU<a href="#section-7.1-1.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.1-1.2">
+            <p id="section-7.1-1.2.1">Description: NTRU family post-quantum signature algorithm key pairs<a href="#section-7.1-1.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.1-1.3">
+            <p id="section-7.1-1.3.1">JOSE Implementation Requirements: Optional<a href="#section-7.1-1.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.1-1.4">
+            <p id="section-7.1-1.4.1">Change Controller: IESG<a href="#section-7.1-1.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-7.1-1.5">
+            <p id="section-7.1-1.5.1">Specification Document(s): This document.<a href="#section-7.1-1.5.1" class="pilcrow">¶</a></p>
+</li>
+        </ul>
 </section>
 </div>
-<div id="sec-normative-references">
-<section id="section-5">
-      <h2 id="name-normative-references">
-<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+<div id="json-web-key-parameters">
+<section id="section-7.2">
+        <h3 id="name-json-web-key-parameters">
+<a href="#section-7.2" class="section-number selfRef">7.2. </a><a href="#name-json-web-key-parameters" class="section-name selfRef">JSON Web Key Parameters</a>
+        </h3>
+<table class="center" id="table-6">
+          <caption><a href="#table-6" class="selfRef">Table 6</a></caption>
+<thead>
+            <tr>
+              <th class="text-right" rowspan="1" colspan="1">Parameter</th>
+              <th class="text-left" rowspan="1" colspan="1">Description</th>
+              <th class="text-left" rowspan="1" colspan="1">Class</th>
+              <th class="text-left" rowspan="1" colspan="1">Used with kty</th>
+              <th class="text-left" rowspan="1" colspan="1">Change Controller</th>
+              <th class="text-left" rowspan="1" colspan="1">Reference</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-right" rowspan="1" colspan="1">pset</td>
+              <td class="text-left" rowspan="1" colspan="1">Parameter set ID</td>
+              <td class="text-left" rowspan="1" colspan="1">Public</td>
+              <td class="text-left" rowspan="1" colspan="1">NTRU</td>
+              <td class="text-left" rowspan="1" colspan="1">IESG</td>
+              <td class="text-left" rowspan="1" colspan="1">This document</td>
+            </tr>
+            <tr>
+              <td class="text-right" rowspan="1" colspan="1">d</td>
+              <td class="text-left" rowspan="1" colspan="1">Private key</td>
+              <td class="text-left" rowspan="1" colspan="1">Private</td>
+              <td class="text-left" rowspan="1" colspan="1">NTRU</td>
+              <td class="text-left" rowspan="1" colspan="1">IESG</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <span>[<a href="#RFC8037" class="cite xref">RFC8037</a>]</span>
+</td>
+            </tr>
+            <tr>
+              <td class="text-right" rowspan="1" colspan="1">x</td>
+              <td class="text-left" rowspan="1" colspan="1">Public key</td>
+              <td class="text-left" rowspan="1" colspan="1">Public</td>
+              <td class="text-left" rowspan="1" colspan="1">NTRU</td>
+              <td class="text-left" rowspan="1" colspan="1">IESG</td>
+              <td class="text-left" rowspan="1" colspan="1">
+                <span>[<a href="#RFC8037" class="cite xref">RFC8037</a>]</span>
+</td>
+            </tr>
+          </tbody>
+        </table>
+</section>
+</div>
+<div id="json-web-signature-and-encryption-algorithms">
+<section id="section-7.3">
+        <h3 id="name-json-web-signature-and-encr">
+<a href="#section-7.3" class="section-number selfRef">7.3. </a><a href="#name-json-web-signature-and-encr" class="section-name selfRef">JSON Web Signature and Encryption Algorithms</a>
+        </h3>
+<table class="center" id="table-7">
+          <caption><a href="#table-7" class="selfRef">Table 7</a></caption>
+<thead>
+            <tr>
+              <th class="text-left" rowspan="1" colspan="1">Algorithm</th>
+              <th class="text-left" rowspan="1" colspan="1">Description</th>
+              <th class="text-left" rowspan="1" colspan="1">Usage Location</th>
+              <th class="text-left" rowspan="1" colspan="1">JOSE Requirement</th>
+              <th class="text-left" rowspan="1" colspan="1">Controller</th>
+              <th class="text-left" rowspan="1" colspan="1">Reference</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">FALCON512</td>
+              <td class="text-left" rowspan="1" colspan="1">FALCON512 signature algorithm</td>
+              <td class="text-left" rowspan="1" colspan="1">alg</td>
+              <td class="text-left" rowspan="1" colspan="1">Optional</td>
+              <td class="text-left" rowspan="1" colspan="1">IESG</td>
+              <td class="text-left" rowspan="1" colspan="1">This document</td>
+            </tr>
+            <tr>
+              <td class="text-left" rowspan="1" colspan="1">FALCON1024</td>
+              <td class="text-left" rowspan="1" colspan="1">FALCON1024 signature algorithm</td>
+              <td class="text-left" rowspan="1" colspan="1">alg</td>
+              <td class="text-left" rowspan="1" colspan="1">Optional</td>
+              <td class="text-left" rowspan="1" colspan="1">IESG</td>
+              <td class="text-left" rowspan="1" colspan="1">This document</td>
+            </tr>
+          </tbody>
+        </table>
+</section>
+</div>
+</section>
+</div>
+<div id="sec-combined-references">
+<section id="section-8">
+      <h2 id="name-references">
+<a href="#section-8" class="section-number selfRef">8. </a><a href="#name-references" class="section-name selfRef">References</a>
       </h2>
+<div id="sec-normative-references">
+<section id="section-8.1">
+        <h3 id="name-normative-references">
+<a href="#section-8.1" class="section-number selfRef">8.1. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+        </h3>
 <dl class="references">
 <dt id="RFC2119">[RFC2119]</dt>
-      <dd>
+        <dd>
 <span class="refAuthor">Bradner, S.</span>, <span class="refTitle">"Key words for use in RFCs to Indicate Requirement Levels"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 2119</span>, <span class="seriesInfo">DOI 10.17487/RFC2119</span>, <time datetime="1997-03" class="refDate">March 1997</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc2119">https://www.rfc-editor.org/rfc/rfc2119</a>&gt;</span>. </dd>
 <dd class="break"></dd>
+<dt id="RFC4648">[RFC4648]</dt>
+        <dd>
+<span class="refAuthor">Josefsson, S.</span>, <span class="refTitle">"The Base16, Base32, and Base64 Data Encodings"</span>, <span class="seriesInfo">RFC 4648</span>, <span class="seriesInfo">DOI 10.17487/RFC4648</span>, <time datetime="2006-10" class="refDate">October 2006</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc4648">https://www.rfc-editor.org/rfc/rfc4648</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC6234">[RFC6234]</dt>
+        <dd>
+<span class="refAuthor">Eastlake 3rd, D.</span> and <span class="refAuthor">T. Hansen</span>, <span class="refTitle">"US Secure Hash Algorithms (SHA and SHA-based HMAC and HKDF)"</span>, <span class="seriesInfo">RFC 6234</span>, <span class="seriesInfo">DOI 10.17487/RFC6234</span>, <time datetime="2011-05" class="refDate">May 2011</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc6234">https://www.rfc-editor.org/rfc/rfc6234</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7515">[RFC7515]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">N. Sakimura</span>, <span class="refTitle">"JSON Web Signature (JWS)"</span>, <span class="seriesInfo">RFC 7515</span>, <span class="seriesInfo">DOI 10.17487/RFC7515</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7515">https://www.rfc-editor.org/rfc/rfc7515</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7516">[RFC7516]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span> and <span class="refAuthor">J. Hildebrand</span>, <span class="refTitle">"JSON Web Encryption (JWE)"</span>, <span class="seriesInfo">RFC 7516</span>, <span class="seriesInfo">DOI 10.17487/RFC7516</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7516">https://www.rfc-editor.org/rfc/rfc7516</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7517">[RFC7517]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refTitle">"JSON Web Key (JWK)"</span>, <span class="seriesInfo">RFC 7517</span>, <span class="seriesInfo">DOI 10.17487/RFC7517</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7517">https://www.rfc-editor.org/rfc/rfc7517</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7518">[RFC7518]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refTitle">"JSON Web Algorithms (JWA)"</span>, <span class="seriesInfo">RFC 7518</span>, <span class="seriesInfo">DOI 10.17487/RFC7518</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7518">https://www.rfc-editor.org/rfc/rfc7518</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7519">[RFC7519]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refAuthor">Bradley, J.</span>, and <span class="refAuthor">N. Sakimura</span>, <span class="refTitle">"JSON Web Token (JWT)"</span>, <span class="seriesInfo">RFC 7519</span>, <span class="seriesInfo">DOI 10.17487/RFC7519</span>, <time datetime="2015-05" class="refDate">May 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7519">https://www.rfc-editor.org/rfc/rfc7519</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7638">[RFC7638]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span> and <span class="refAuthor">N. Sakimura</span>, <span class="refTitle">"JSON Web Key (JWK) Thumbprint"</span>, <span class="seriesInfo">RFC 7638</span>, <span class="seriesInfo">DOI 10.17487/RFC7638</span>, <time datetime="2015-09" class="refDate">September 2015</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7638">https://www.rfc-editor.org/rfc/rfc7638</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC7797">[RFC7797]</dt>
+        <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refTitle">"JSON Web Signature (JWS) Unencoded Payload Option"</span>, <span class="seriesInfo">RFC 7797</span>, <span class="seriesInfo">DOI 10.17487/RFC7797</span>, <time datetime="2016-02" class="refDate">February 2016</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc7797">https://www.rfc-editor.org/rfc/rfc7797</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8037">[RFC8037]</dt>
+        <dd>
+<span class="refAuthor">Liusvaara, I.</span>, <span class="refTitle">"CFRG Elliptic Curve Diffie-Hellman (ECDH) and Signatures in JSON Object Signing and Encryption (JOSE)"</span>, <span class="seriesInfo">RFC 8037</span>, <span class="seriesInfo">DOI 10.17487/RFC8037</span>, <time datetime="2017-01" class="refDate">January 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8037">https://www.rfc-editor.org/rfc/rfc8037</a>&gt;</span>. </dd>
+<dd class="break"></dd>
 <dt id="RFC8174">[RFC8174]</dt>
-    <dd>
+        <dd>
 <span class="refAuthor">Leiba, B.</span>, <span class="refTitle">"Ambiguity of Uppercase vs Lowercase in RFC 2119 Key Words"</span>, <span class="seriesInfo">BCP 14</span>, <span class="seriesInfo">RFC 8174</span>, <span class="seriesInfo">DOI 10.17487/RFC8174</span>, <time datetime="2017-05" class="refDate">May 2017</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8174">https://www.rfc-editor.org/rfc/rfc8174</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="RFC8812">[RFC8812]</dt>
+      <dd>
+<span class="refAuthor">Jones, M.</span>, <span class="refTitle">"CBOR Object Signing and Encryption (COSE) and JSON Object Signing and Encryption (JOSE) Registrations for Web Authentication (WebAuthn) Algorithms"</span>, <span class="seriesInfo">RFC 8812</span>, <span class="seriesInfo">DOI 10.17487/RFC8812</span>, <time datetime="2020-08" class="refDate">August 2020</time>, <span>&lt;<a href="https://www.rfc-editor.org/rfc/rfc8812">https://www.rfc-editor.org/rfc/rfc8812</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
 </div>
-<div id="acknowledgments">
+<div id="sec-informative-references">
+<section id="section-8.2">
+        <h3 id="name-informative-references">
+<a href="#section-8.2" class="section-number selfRef">8.2. </a><a href="#name-informative-references" class="section-name selfRef">Informative References</a>
+        </h3>
+<dl class="references">
+<dt id="DP16">[DP16]</dt>
+        <dd>
+<span class="refTitle">"Fast Fourier Orthogonalization"</span>, <span>n.d.</span>. </dd>
+<dd class="break"></dd>
+<dt id="Falcon">[Falcon]</dt>
+        <dd>
+<span class="refTitle">"Fast-Fourier Lattice-based Compact Signatures over NTRU"</span>, <span>n.d.</span>, <span>&lt;<a href="https://falcon-sign.info/">https://falcon-sign.info/</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="GPV08">[GPV08]</dt>
+      <dd>
+<span class="refTitle">"Trapdoors for Hard Lattices and New Cryptographic Constructions"</span>, <span>n.d.</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+</div>
+</section>
+</div>
+<div id="acknowledgements">
 <section id="appendix-A">
-      <h2 id="name-acknowledgments">
-<a href="#name-acknowledgments" class="section-name selfRef">Acknowledgments</a>
+      <h2 id="name-acknowledgements">
+<a href="#appendix-A" class="section-number selfRef">Appendix A. </a><a href="#name-acknowledgements" class="section-name selfRef">Acknowledgements</a>
       </h2>
-<p id="appendix-A-1">TODO acknowledge.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+<p id="appendix-A-1">We thank David Balenson for careful review and Michael B. Jones for guidance during authorship.<a href="#appendix-A-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="history">
+<section id="appendix-B">
+      <h2 id="name-document-history">
+<a href="#appendix-B" class="section-number selfRef">Appendix B. </a><a href="#name-document-history" class="section-name selfRef">Document History</a>
+      </h2>
+<ul class="normal">
+<li class="normal" id="appendix-B-1.1">
+          <p id="appendix-B-1.1.1">-02<a href="#appendix-B-1.1.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="appendix-B-1.1.2.1">
+              <p id="appendix-B-1.1.2.1.1">Added new co-author<a href="#appendix-B-1.1.2.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="appendix-B-1.1.2.2">
+              <p id="appendix-B-1.1.2.2.1">Revised draft<a href="#appendix-B-1.1.2.2.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+</li>
+        <li class="normal" id="appendix-B-1.2">
+          <p id="appendix-B-1.2.1">-01<a href="#appendix-B-1.2.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="appendix-B-1.2.2.1">
+              <p id="appendix-B-1.2.2.1.1">Added acknowledgements<a href="#appendix-B-1.2.2.1.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="appendix-B-1.2.2.2">
+              <p id="appendix-B-1.2.2.2.1">Added document history<a href="#appendix-B-1.2.2.2.1" class="pilcrow">¶</a></p>
+</li>
+            <li class="normal" id="appendix-B-1.2.2.3">
+              <p id="appendix-B-1.2.2.3.1">Updated test vectors<a href="#appendix-B-1.2.2.3.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+</li>
+        <li class="normal" id="appendix-B-1.3">
+          <p id="appendix-B-1.3.1">-00<a href="#appendix-B-1.3.1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="appendix-B-1.3.2.1">
+              <p id="appendix-B-1.3.2.1.1">Created draft-ietf-cose-falcon-00 from draft-ietf-cose-post-quantum-signatures-01 following working group feedback<a href="#appendix-B-1.3.2.1.1" class="pilcrow">¶</a></p>
+</li>
+          </ul>
+</li>
+      </ul>
+</section>
+</div>
+<div id="test-vectors">
+<section id="appendix-C">
+      <h2 id="name-test-vectors">
+<a href="#appendix-C" class="section-number selfRef">Appendix C. </a><a href="#name-test-vectors" class="section-name selfRef">Test Vectors</a>
+      </h2>
+<div id="ntru-falcon512">
+<section id="appendix-C.1">
+        <h3 id="name-ntru-falcon512">
+<a href="#appendix-C.1" class="section-number selfRef">C.1. </a><a href="#name-ntru-falcon512" class="section-name selfRef">NTRU FALCON512</a>
+        </h3>
+<p id="appendix-C.1-1">The following test vectors are provided for interoperability testing. JSON line wrapping follows <span>[<a href="#RFC7797" class="cite xref">RFC7797</a>]</span> guidance for JWS payload handling where applicable.<a href="#appendix-C.1-1" class="pilcrow">¶</a></p>
+<div id="publickeyjwk">
+<section id="appendix-C.1.1">
+          <h4 id="name-publickeyjwk">
+<a href="#appendix-C.1.1" class="section-number selfRef">C.1.1. </a><a href="#name-publickeyjwk" class="section-name selfRef">publicKeyJwk</a>
+          </h4>
+<p id="appendix-C.1.1-1"><code>json
+========== NOTE: '\' line wrapping per RFC 8792 ==========
+{
+ "kty": "NTRU",
+ "alg": "FALCON512",
+ "x": "TUlJRGp6QUhCZ1Vyemc4REJnT0NBNElBQ1g3ZElvVGR5ajZmN3VmME5vbWJP\
+ekVtNG84U3JCMytYdWFveTA1cFFjVkpsWUF0VFkzcWsxcUNZcnJOdU9saXI5OC84dHh5\
+SDZlRXNCNUxVVXBPbjZQWUtZclZFVjFQM1ZHYmd5UmFKaDNkUldrVUpDWTVTVkEra2JB\
+ZUFiM29MVUtMZktTUk9UZGN3MStpL1BkamFNWXpwb2hWOEJqa003REhFTGNqTUhxTlJn\
+SkRDdE95RXAvNTBXanl2Vm9XRXZWVTlZemxjamhMeWw5S29XTklZb1UrWUJGMnRqS2ts\
+VXlsWlBma0F6c3QwSk5FSW0xWkIxS2xWR3ZpYks2WThuaXM0T2F2OHFVa1l5UGdsTzYr\
+cGtJVkdDV09xdHIxclpwZ0JZWm5CbDlJVytrekpuVW5ZbFQ2bDBpVEhtT0MxbFNJZnh6\
+SXBQekpFU1pHQldxQmhmb1BKa0tFVktvV0VFVFFseUNBVXlybTM3Qm9oMGZ3cEdweS9W\
+NDBnNTFZU2xveTkrbEJiaWhnSUpReXdvdUg4YnVrZGtKRGtOYlZNMklkeERvc0hOVEx4\
+M2lYY0RocjZ4eU9jT2w0TmRWYU9CUFdzek9yWGtOSWdUenp5UWNRWW41cFF5MFR1WHd0\
+QW1PN2grRUYxQ1NEdlFhSUZkRDl5ejdWTzFyVmdvY1ZiMHc3R0xyMEZoWHVSb0JsNnpp\
+cnJRenhJUmFiVjlZamFYekpibC9vdlNKMCtnOEttaUlvUE9LajQwVTBOc3phaVcyNldY\
+RmdzNW1rbUxQQTcxR29uQldIQkNua0ZkbzdjM0FJbXlwUjhJQmdObXZvR0RkZXNSUGJW\
+cEdNdUJUOUJyMkxBYjFNbnlTRmExK2xxTkVteW9Da21acUhOM2tGaEp3OUFCZDN6QUlm\
+Z29ldzhkRVBIRm14SnVOVklpM3FqbUVxU0U4QmhQUUdmRjVMSUhKRkpEQk1rUjgrOHZF\
+eG9YMXpsRFZuNzFHMHZkRjBxUGJnV3BKbFZhQ3M1VHlSRlgxR0NZbmJvY2lBR3dKUito\
+ekE5SnNKeGJ4TDVBUlNWR3J3Zlg2UEVJM0gvNUpreU1jSEdnNFdoZmJHbzQ4TEdFVlFx\
+YVpXUkJHNG96aU00TU9HWGFPTHBZNFJSKzB0TVRnT0lpK0sxUWl1TFBkbjhUK0dJK1c5\
+cDFTNTVBU0VHeGRBRFpKZmFSRkZaQll6b1VaeWJtRmt1WmJuUkVGOXh2QzlBbnc3L3Ay\
+cG9HUXRwUGpkVlFZc1MxOUVjVWlCQmRhdU1HLzEya1FDTEhZMjlKL0orU2tFR0hKVTFr\
+OWNRSlNvUTJRYmtpVm5RaVRWQzMwSzdtbkpKOW14U2NOSURBQUlOTFhUNHVDdU9pR20v\
+c1RWMHI5TXJJcjRjTzRNYXBvTTBWbmJZTDA2d25SL2pzTTVPRFhxMVJ5blRMbGFXN29z\
+cDA3TUFmQUhDd2V4M1p0bkFNZUFaUVJ4T0Yza1F3QU1reElITE01aThzMmFHTjJtV3FX\
+VHR5cGlqMEw4eExtUzBhNXBUR2FWb1lhbnZrV1M1UC9CRjdER3hEUmtxdm1SbERyVXdo\
+UjY",
+ "use": "sig"
+}
+</code><a href="#appendix-C.1.1-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="privatekeyjwk">
+<section id="appendix-C.1.2">
+          <h4 id="name-privatekeyjwk">
+<a href="#appendix-C.1.2" class="section-number selfRef">C.1.2. </a><a href="#name-privatekeyjwk" class="section-name selfRef">privateKeyJwk</a>
+          </h4>
+<p id="appendix-C.1.2-1"><code>json
+   ========== NOTE: '\' line wrapping per RFC 8792 ==========
+   {
+     "kty": "NTRU",
+     "alg": "FALCON512",
+     "x": "TUlJRGp6QUhCZ1Vyemc4REJnT0NBNElBQ1g3ZElvVGR5ajZmN3VmME5vbWJP\
+   ekVtNG84U3JCMytYdWFveTA1cFFjVkpsWUF0VFkzcWsxcUNZcnJOdU9saXI5OC84dHh5\
+   SDZlRXNCNUxVVXBPbjZQWUtZclZFVjFQM1ZHYmd5UmFKaDNkUldrVUpDWTVTVkEra2JB\
+   ZUFiM29MVUtMZktTUk9UZGN3MStpL1BkamFNWXpwb2hWOEJqa003REhFTGNqTUhxTlJn\
+   SkRDdE95RXAvNTBXanl2Vm9XRXZWVTlZemxjamhMeWw5S29XTklZb1UrWUJGMnRqS2ts\
+   VXlsWlBma0F6c3QwSk5FSW0xWkIxS2xWR3ZpYks2WThuaXM0T2F2OHFVa1l5UGdsTzYr\
+   cGtJVkdDV09xdHIxclpwZ0JZWm5CbDlJVytrekpuVW5ZbFQ2bDBpVEhtT0MxbFNJZnh6\
+   SXBQekpFU1pHQldxQmhmb1BKa0tFVktvV0VFVFFseUNBVXlybTM3Qm9oMGZ3cEdweS9W\
+   NDBnNTFZU2xveTkrbEJiaWhnSUpReXdvdUg4YnVrZGtKRGtOYlZNMklkeERvc0hOVEx4\
+   M2lYY0RocjZ4eU9jT2w0TmRWYU9CUFdzek9yWGtOSWdUenp5UWNRWW41cFF5MFR1WHd0\
+   QW1PN2grRUYxQ1NEdlFhSUZkRDl5ejdWTzFyVmdvY1ZiMHc3R0xyMEZoWHVSb0JsNnpp\
+   cnJRenhJUmFiVjlZamFYekpibC9vdlNKMCtnOEttaUlvUE9LajQwVTBOc3phaVcyNldY\
+   RmdzNW1rbUxQQTcxR29uQldIQkNua0ZkbzdjM0FJbXlwUjhJQmdObXZvR0RkZXNSUGJW\
+   cEdNdUJUOUJyMkxBYjFNbnlTRmExK2xxTkVteW9Da21acUhOM2tGaEp3OUFCZDN6QUlm\
+   Z29ldzhkRVBIRm14SnVOVklpM3FqbUVxU0U4QmhQUUdmRjVMSUhKRkpEQk1rUjgrOHZF\
+   eG9YMXpsRFZuNzFHMHZkRjBxUGJnV3BKbFZhQ3M1VHlSRlgxR0NZbmJvY2lBR3dKUito\
+   ekE5SnNKeGJ4TDVBUlNWR3J3Zlg2UEVJM0gvNUpreU1jSEdnNFdoZmJHbzQ4TEdFVlFx\
+   YVpXUkJHNG96aU00TU9HWGFPTHBZNFJSKzB0TVRnT0lpK0sxUWl1TFBkbjhUK0dJK1c5\
+   cDFTNTVBU0VHeGRBRFpKZmFSRkZaQll6b1VaeWJtRmt1WmJuUkVGOXh2QzlBbnc3L3Ay\
+   cG9HUXRwUGpkVlFZc1MxOUVjVWlCQmRhdU1HLzEya1FDTEhZMjlKL0orU2tFR0hKVTFr\
+   OWNRSlNvUTJRYmtpVm5RaVRWQzMwSzdtbkpKOW14U2NOSURBQUlOTFhUNHVDdU9pR20v\
+   c1RWMHI5TXJJcjRjTzRNYXBvTTBWbmJZTDA2d25SL2pzTTVPRFhxMVJ5blRMbGFXN29z\
+   cDA3TUFmQUhDd2V4M1p0bkFNZUFaUVJ4T0Yza1F3QU1reElITE01aThzMmFHTjJtV3FX\
+   VHR5cGlqMEw4eExtUzBhNXBUR2FWb1lhbnZrV1M1UC9CRjdER3hEUmtxdm1SbERyVXdo\
+   UjY",
+     "d": "TUlJSWxnSUJBREFIQmdVcnpnOERCZ1NDQ0lZRWdnaUNXZmZoUXZBQS8veGd0\
+   UWd1ZWZBUU8vUHZ3Ky9mZ2h1L2ZRZXdTUHVBUyt5QWdCdVBnUWZ2Znd2UlBQdi9nZy8v\
+   Zy9DUFJ2L1BnQmZ1dkFBeEFoZGdQQXdmZitRUXdCQVFmL1BBUS9RZml4UGYreC93ZlFQ\
+   eGhoZ3Z4UHdBUHZmT1JmQTl1L1FTQkFBUXdneUFnUFFmdXdlUXVQd3YrdnhnUFF3Z1BP\
+   aEFBQkFnQkJBUXZ2UE9SaFEveGUrL0J2d0FnUE9RZkFCd1NmUHZnZnZnaEFoZnZBd2hm\
+   QUJlUHMvZS8vUWgvZ2ZSZmRRUVAvaGhodndRZk9BZy9TUHdlL1BnUFJQd1FndlF2eFBo\
+   ZndnQ2dQdnhRdndlLy9mQi9QdmdpZXh3d3dnUU9pZXc5UVB3dndnL2hQUHZOL2d1dy9l\
+   QWdTQXUvL3doZWdCUGUveEErZ0FldlFSZ3Z2Z1FnUndBTy93UFJPd0JoQkJQd3ZnaFBl\
+   Z2V2ZS8vdFFoUWR2ZmZ4UCsrZ3UvK3V3T2dBT2hnQWdBQjlmZk9nK0IreC8vUS92UlB3\
+   dU93dndmdit2UGVRQ0JmUXdnUHdQZnhnUHd3QWZ3Z1Ard2Z3dWZmUmZBUGYvL0FQUXZ3\
+   Umc5Z2dQUXdBdy8vZ0FoUHdneEFBUXZQQXhndnYvU3hnZy92QVJ3UFAraE93UGd2Qi9Q\
+   UWZCK1JleWlndmdBeFArL1FmUndlZWd3dndndit3QnlBd09BaEJQeFJBUGV2dWRQdmdo\
+   ZWdlaFAvT2dBdmdRZmZmZS92ZmZSd1FnUEF3UXZ3dnZ2Z2dndkJCUlBQeFJPL2YveUJB\
+   QWUvdHdQZ2V1ZkFmZmhQZmd4ZHZoUEJRL3ZBKy9oZi9oZWdRQnZTQVJkdk9RQVNpZndP\
+   K3dSQkFCZ2Z3Z2dRdnZRd2Q5QXdQL0Nmd3Z4ZmhRaFF3T3dnUndlL1FndGZkZlBPUVBT\
+   U1J1QWd3UGZBQVF3eFErUVJBd08rQXZRdmYvdy9QTy9RLy9oUWhQd2doQkJCQXQvdnQv\
+   L0FBd0FoZ0FRUCt2US8vdlFnK2cvd3dPK1JQLy8rZndQZ2cvQUFPZ0FBQWhld2gvQVJ2\
+   L2dCQUF3ZXZCQUFRL2Z3T3d2dmZQK2hST0FQZ2dmd2h3Z2dTZyt0QXdneEJnZlJSd3Zn\
+   UFF4UlFCQmh2US93ZlBnaHdlL3dmZi94Z2d4UVF2UC93dmdCaEJBd1EvQi9mQXdBdmdS\
+   ZmhQd2ZQd3d2aEFCZ3dmdlJCUkJCUVJSZ3dBdnd2Z1JPd0JQdnhBZnYrQS91UHdRUHdQ\
+   UnVBQStnQWVnZ2cvd3hmdnd4dndoaFFRaHZ2ZVF3d3cvQS94L09oZnYvZmdEcUV4VHRL\
+   QTc4OHdRTUh2ejNLZmJ5MXlNK0VTUU9LUHdJQ2Z6MkN3bnlIQ2dQRWU0TStnci83aEU0\
+   SnZtL0VBTUYrK1hUeWZILy9DTUJKUS8rR2hEYzVQRWRKZVFtQ2ZjaENQM2IwZ3I3RVF2\
+   eC9OWWQ5ZUxnendiZy9RZnEyeUlBNmpEd04rYjkwZWozL1JiL0IrWUUrdS9XTU9IQzNB\
+   VGcrL0w0NTk4VTdmOFA1Tm5qK2U3VkhpM3M2UWNVNE8wYitzN1UrQW9KRUFiajlRTCs2\
+   Tm5iOGUvbEY5Mngzd0l1K056WS92SFpFeGNNSkRIOUIvbjUrT1B0Nmd3Q0N0MEhHZlBw\
+   OGVudC91TWZDQW56NmhyckRnRFkyZXNpQ0FYNFNQME5JQ24zMlBzZzRRd2JJai82TlFJ\
+   TEFPd1NBQXphSjlMRkN4RWdFaG9MNHRQNkVpc2pIQUVZQVA3QThTN3dHZnNRQlFrcUVR\
+   TUdKd0pBKyt2NXBlNGtMd3dXRmdUM0FncmU4L29JRGczOUZRSUlBZlVLL3huY0Z6dnhE\
+   UXI4eWdIOTcrUUZHdjBIUFBBQTlFUVQ4T2NCNEFVWkRQYitDdVFETXdrRTZCL0k0Zi9X\
+   NE5VVkpBQVZMdzdXemhZaC92eitIT1A4OXh6TSt2enpJN2ZaS0R4SENBY04vTlFBOE5I\
+   Yk5SUGY4UG4xN1FvTTlBVU16UkFXTGYyc0JPcjVEUjhjMmcwbDYvQU1HK1hvNnVidThp\
+   aTg2aW4xSmZFWkMvQVR5T3ZNNVBEeDN2bjE3dlFIQU5EMUsvUGUrL2Y2L3ZjSXRSTGw1\
+   d2tORGhBWjZBOEdFK25xK3luK3lmZnBDUHNsQXZmYjZ2TDYrd250Nmc4VTIvamwvdkxM\
+   SFBMakU4b0E5QWM0Q1g3ZElvVGR5ajZmN3VmME5vbWJPekVtNG84U3JCMytYdWFveTA1\
+   cFFjVkpsWUF0VFkzcWsxcUNZcnJOdU9saXI5OC84dHh5SDZlRXNCNUxVVXBPbjZQWUtZ\
+   clZFVjFQM1ZHYmd5UmFKaDNkUldrVUpDWTVTVkEra2JBZUFiM29MVUtMZktTUk9UZGN3\
+   MStpL1BkamFNWXpwb2hWOEJqa003REhFTGNqTUhxTlJnSkRDdE95RXAvNTBXanl2Vm9X\
+   RXZWVTlZemxjamhMeWw5S29XTklZb1UrWUJGMnRqS2tsVXlsWlBma0F6c3QwSk5FSW0x\
+   WkIxS2xWR3ZpYks2WThuaXM0T2F2OHFVa1l5UGdsTzYrcGtJVkdDV09xdHIxclpwZ0JZ\
+   Wm5CbDlJVytrekpuVW5ZbFQ2bDBpVEhtT0MxbFNJZnh6SXBQekpFU1pHQldxQmhmb1BK\
+   a0tFVktvV0VFVFFseUNBVXlybTM3Qm9oMGZ3cEdweS9WNDBnNTFZU2xveTkrbEJiaWhn\
+   SUpReXdvdUg4YnVrZGtKRGtOYlZNMklkeERvc0hOVEx4M2lYY0RocjZ4eU9jT2w0TmRW\
+   YU9CUFdzek9yWGtOSWdUenp5UWNRWW41cFF5MFR1WHd0QW1PN2grRUYxQ1NEdlFhSUZk\
+   RDl5ejdWTzFyVmdvY1ZiMHc3R0xyMEZoWHVSb0JsNnppcnJRenhJUmFiVjlZamFYekpi\
+   bC9vdlNKMCtnOEttaUlvUE9LajQwVTBOc3phaVcyNldYRmdzNW1rbUxQQTcxR29uQldI\
+   QkNua0ZkbzdjM0FJbXlwUjhJQmdObXZvR0RkZXNSUGJWcEdNdUJUOUJyMkxBYjFNbnlT\
+   RmExK2xxTkVteW9Da21acUhOM2tGaEp3OUFCZDN6QUlmZ29ldzhkRVBIRm14SnVOVklp\
+   M3FqbUVxU0U4QmhQUUdmRjVMSUhKRkpEQk1rUjgrOHZFeG9YMXpsRFZuNzFHMHZkRjBx\
+   UGJnV3BKbFZhQ3M1VHlSRlgxR0NZbmJvY2lBR3dKUitoekE5SnNKeGJ4TDVBUlNWR3J3\
+   Zlg2UEVJM0gvNUpreU1jSEdnNFdoZmJHbzQ4TEdFVlFxYVpXUkJHNG96aU00TU9HWGFP\
+   THBZNFJSKzB0TVRnT0lpK0sxUWl1TFBkbjhUK0dJK1c5cDFTNTVBU0VHeGRBRFpKZmFS\
+   RkZaQll6b1VaeWJtRmt1WmJuUkVGOXh2QzlBbnc3L3AycG9HUXRwUGpkVlFZc1MxOUVj\
+   VWlCQmRhdU1HLzEya1FDTEhZMjlKL0orU2tFR0hKVTFrOWNRSlNvUTJRYmtpVm5RaVRW\
+   QzMwSzdtbkpKOW14U2NOSURBQUlOTFhUNHVDdU9pR20vc1RWMHI5TXJJcjRjTzRNYXBv\
+   TTBWbmJZTDA2d25SL2pzTTVPRFhxMVJ5blRMbGFXN29zcDA3TUFmQUhDd2V4M1p0bkFN\
+   ZUFaUVJ4T0Yza1F3QU1reElITE01aThzMmFHTjJtV3FXVHR5cGlqMEw4eExtUzBhNXBU\
+   R2FWb1lhbnZrV1M1UC9CRjdER3hEUmtxdm1SbERyVXdoUjY",
+     "use": "sig"
+   }
+</code><a href="#appendix-C.1.2-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="jws">
+<section id="appendix-C.1.3">
+          <h4 id="name-jws">
+<a href="#appendix-C.1.3" class="section-number selfRef">C.1.3. </a><a href="#name-jws" class="section-name selfRef">JWS</a>
+          </h4>
+<p id="appendix-C.1.3-1"><code>json
+   ========== NOTE: '\' line wrapping per RFC 8792 ==========
+   eyJhbGciOiAiRkFMQ09ONTEyIiwgImt0eSI6ICJOVFJVIiwgInR5cCI6ICJKV1QifQ.e\
+   yJtZXNzYWdlIjogImhlbGxvIHdvcmxkIn0.OfsYG7sdSy2rsww2Np5ZwWxpr6hZrNHLu\
+   svsFtb8KcK2mrC5BRYQw1Z_pao6qWJj46wkiBlqgcFtqCNFj0L0DmMcuqx6DMjOcp9GE\
+   fqadmfIgivqlkOY9WSfS71K7GIw4T8Z1av5U_dlKjYWKwZqzK75nznsspTnDqRbTETK3\
+   OMIjicJ2-3VwjU0HGQXYyiJZo_OPOc__yyyJU7BfdlLMneUj9KZqQDdkloLBmeprdY5w\
+   ihsFcvlAUJ52IYzf-nmaAs1wzOoanjUJVyNFN4KAX58OpF47MrNnsLOmAQuAlrn6Uo0J\
+   h7YoqySUhtOKv8oY2rHU2Rb4JYqcYQdVA0qTibErkitJvqYAzdTeJBOVgtmVHDCRIbeF\
+   4SfL-TpZfsJadNDYUx2G9uGyqadwlyNS7tVjZIhGo807mfHfUi4btjCYZTd1zA0SFZFl\
+   tFCZivD7pxuCw-Ykf85ayy9sFu_W_UgTRC038I82YfbwdnbPH99Rx5ZGP1ySNGeuUuf3\
+   YxLT0PQDFLhW_jTZhDZCwh1Yj3UcQiDDLsYpdDYq1ipeB1KLm6mxaBqRRqjV2xcgpTyV\
+   aQNXin_aPHwJqoOlUy45E2sY482TS97mN64zee0uPM7FFIpVK3Pfx18i9lpuRS9RKEdV\
+   u0MKT4ZJKMHwEqZCEQFJfhrPvEdjblK93tj1xYs8auvLE2VUZo-nbEckuS7sdeDN9BS7\
+   Bf4-0EbQx-ML78mw5Clix2o49udTF-PU6xOkM83ZEFI5q4oV3LeF29Xs_Z1kl5uWKf2F\
+   nwKtz0hVTPKfZ9iPso6ukO3-OQ87EGFyHaf5zdXgXLwxFEwQh-WE3XmfboyVfL4yUkXv\
+   RUmNfpniJfXbMA8SD0mZp8ysA
+</code><a href="#appendix-C.1.3-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
 </section>
 </div>
 <div id="authors-addresses">
-<section id="appendix-B">
-      <h2 id="name-authors-address">
-<a href="#name-authors-address" class="section-name selfRef">Author's Address</a>
+<section id="appendix-D">
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
       </h2>
 <address class="vcard">
-        <div dir="auto" class="left"><span class="fn nameRole">Your Name Here</span></div>
-<div dir="auto" class="left"><span class="org">Your Organization Here</span></div>
+        <div dir="auto" class="left"><span class="fn nameRole">Michael Prorock</span></div>
+<div dir="auto" class="left"><span class="org">mesur.io</span></div>
 <div class="email">
 <span>Email:</span>
-<a href="mailto:your.email@example.com" class="email">your.email@example.com</a>
+<a href="mailto:mprorock@mesur.io" class="email">mprorock@mesur.io</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Orie Steele</span></div>
+<div dir="auto" class="left"><span class="org">Tradeverifyd</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:orie@or13.io" class="email">orie@or13.io</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Rafael Misoczki</span></div>
+<div dir="auto" class="left"><span class="org">Google</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:rafaelmisoczki@google.com" class="email">rafaelmisoczki@google.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Michael Osborne</span></div>
+<div dir="auto" class="left"><span class="org">IBM</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:osb@zurich.ibm.com" class="email">osb@zurich.ibm.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Christine Cloostermans</span></div>
+<div dir="auto" class="left"><span class="org">NXP</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:christine.cloostermans@nxp.com" class="email">christine.cloostermans@nxp.com</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Hannes Tschofenig</span></div>
+<div dir="auto" class="left"><span class="org">University of Applied Sciences Bonn-Rhein-Sieg</span></div>
+<div dir="auto" class="left"><span class="country-name">Germany</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:hannes.tschofenig@gmx.net" class="email">hannes.tschofenig@gmx.net</a>
 </div>
 </address>
 </section>
