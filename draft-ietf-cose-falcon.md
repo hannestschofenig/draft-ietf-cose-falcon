@@ -9,19 +9,19 @@ number:
 date:
 consensus: true
 v: 3
-area: AREA
-workgroup: WG Working Group
+area: "Security"
+workgroup: "CBOR Object Signing and Encryption"
 keyword:
  - next generation
  - unicorn
  - sparkling distributed ledger
 venue:
-  group: WG
-  type: Working Group
-  mail: WG@example.com
-  arch: https://example.com/WG
-  github: USER/REPO
-  latest: https://example.com/LATEST
+  group: "CBOR Object Signing and Encryption"
+  type: "Working Group"
+  mail: "cose@ietf.org"
+  arch: "https://mailarchive.ietf.org/arch/browse/cose/"
+  github: "hannestschofenig/draft-ietf-cose-falcon"
+  latest: "https://hannestschofenig.github.io/draft-ietf-cose-falcon/draft-ietf-cose-falcon.html"
 
 author:
  -
